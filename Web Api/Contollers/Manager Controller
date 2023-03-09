@@ -1,0 +1,266 @@
+using Final_Claim_Ass.Db;
+using Final_Claim_Ass.Model;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Vito_Claim_Managemnt_System.Models;
+
+namespace Final_Claim_Ass.Controllers
+{
+  
+    public class ManagerController : ControllerBase
+    {
+        Claim_ManagementContext dbconn = new Claim_ManagementContext();
+
+        [HttpPost]
+        [Route("api/Login")]
+
+        public string Login(LoginModel obj)
+
+        {
+
+            var res = dbconn.Managers.Where(m => m.Manager_Id == obj.Manager_Id).FirstOrDefault();
+            if (res == null)
+            {
+                return "Manager not Found";
+            }
+
+            else
+            {
+                if (res.Manager_Id == obj.Manager_Id && res.Manager_Password == obj.Manager_Password)
+                {
+                    return "Success";
+                }
+                else
+                {
+                    return "no pass";
+                }
+            }
+        }
+
+
+        [HttpGet]
+        [Route("api/Manager_Info")]
+
+        public List<ManagerModel> Manager_Info()
+        {
+            var res = dbconn.Managers.ToList();
+            List<ManagerModel> obj = new List<ManagerModel>();
+
+            foreach (var item in res)
+            {
+                obj.Add(new ManagerModel()
+                {
+                    MIdentity = item.M_Identity,
+                    ManagerId = item.Manager_Id,
+                    RoleId = item.Role_Id,
+                    ManagerFname = item.Manager_Fname,
+                    ManagerLname = item.Manager_Lname,
+                    ManagerSal = item.Manager_Sal,
+                    ManagerDepartment = item.Manager_Department,
+                    ManagerContact = item.Manager_Contact,
+                    ManagerDob = item.Manager_Dob,
+                    ManagerGender = item.Manager_Gender,
+                    ManagerBank = item.Manager_Bank,
+                    ManagerAccountNo = item.Manager_AccountNo,
+                    ManagerEmail = item.Manager_Email,
+                    ManagerPassword = item.Manager_Password,
+                    ManagerImage = item.Manager_Image
+
+                });
+            }
+            return obj;
+        }
+
+        [HttpGet]
+        [Route("api/Manager_Particular_Info")]
+
+        public ManagerModel Manager_Particular_Info(string Manager_Id)
+        {
+            var res = dbconn.Managers.Where(m => m.Manager_Id == Manager_Id).First();
+            ManagerModel obj = new ManagerModel();
+            obj.MIdentity = res.M_Identity;
+            obj.ManagerId = res.Manager_Id;
+            obj.RoleId = res.Role_Id;
+            obj.ManagerFname = res.Manager_Fname;
+            obj.ManagerLname = res.Manager_Lname;
+            obj.ManagerSal = res.Manager_Sal;
+            obj.ManagerDepartment = res.Manager_Department;
+            obj.ManagerContact = res.Manager_Contact;
+            obj.ManagerDob = res.Manager_Dob;
+            obj.ManagerGender = res.Manager_Gender;
+            obj.ManagerBank = res.Manager_Bank;
+            obj.ManagerAccountNo = res.Manager_AccountNo;
+            obj.ManagerEmail = res.Manager_Email;
+            obj.ManagerPassword = res.Manager_Password;
+            obj.ManagerImage = res.Manager_Image;
+            return obj;
+
+        }
+        
+                [HttpPost]
+                [Route("api/Insert_Manager_Self_Claims")]
+
+                public HttpResponseMessage Insert_Manager_Self_Claims(Employee_Claims_Model obj)
+                {
+                    dbconn.Database.ExecuteSqlInterpolated($"Insert_Manager_Self_Claims {obj.ManagerId},{obj.EmployeeId},{obj.SourceLocation},{obj.DestinationLocation},{obj.Purpose},{obj.DistanceKms}.{obj.Rupees},{obj.TravelBy},{obj.ToDate},{obj.FromDate},{obj.StatusOfClaims},{obj.EmployeeClaimsProof}");
+                    HttpResponseMessage rep = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
+                    return rep;
+                }
+        
+
+                [HttpGet]
+                [Route("api/Manager_Approval_Claims_Show")]
+
+                public List<Employee_Claims_Model> Manager_Approval_Claims_Show(string ManagerId)
+                {
+                    var res = dbconn.Show_Employee_Claim_Managers.FromSqlInterpolated($"Show_Employee_Claim_Manager {ManagerId}").ToList();
+                    List<Employee_Claims_Model> obj = new List<Employee_Claims_Model>();
+
+                    foreach (var item in res)
+                    {
+                        obj.Add(new Employee_Claims_Model()
+                        {
+
+                            ClaimsNoId = item.Claims_No_Id,
+                            ManagerId = item.Manager_Id,
+                            EmployeeId = item.Employee_Id,
+                            SourceLocation = item.Source_Location,
+                            DestinationLocation = item.Destination_Location,
+                            Purpose = item.Purpose,
+                            DistanceKms = item.Distance_Kms,
+                            Rupees = item.Rupees,
+                            ToDate = item.To_Date,
+                            FromDate = item.From_Date,
+                            TravelBy = item.Travel_By,
+                            StatusOfClaims = item.Status_Of_Claims,
+                            EmployeeClaimsProof = item.Employee_Claims_Proof
+
+
+                        });
+                    }
+                    return obj;
+
+                }
+        
+                [HttpGet]
+                [Route("api/Update_Manager")]
+
+                public ManagerModel Update_Manager(string ManagerId)
+                {
+                    var res = dbconn.Managers.Where(m => m.Manager_Id == ManagerId).First();
+
+                    ManagerModel obj = new ManagerModel();
+
+                    obj.RoleId = res.Role_Id;
+                    obj.ManagerFname = res.Manager_Fname;
+                    obj.ManagerLname = res.Manager_Lname;
+                    obj.ManagerSal = res.Manager_Sal;
+                    obj.ManagerDepartment = res.Manager_Department;
+                    obj.ManagerContact = res.Manager_Contact;
+                    obj.ManagerDob = res.Manager_Dob;
+                    obj.ManagerGender = res.Manager_Gender;
+                    obj.ManagerBank = res.Manager_Bank;
+                    obj.ManagerAccountNo = res.Manager_AccountNo;
+                    obj.ManagerEmail = res.Manager_Email;
+                    obj.ManagerPassword = res.Manager_Password;
+                    obj.ManagerImage = res.Manager_Image;
+
+                    return obj;
+                }
+        
+                [HttpGet]
+                [Route("api/Delete_Manager")]
+
+                public HttpResponseMessage DeleteManager(string ManagerId)
+                {
+                    dbconn.Database.ExecuteSqlInterpolated($"Delete_Manager {ManagerId}");
+                    dbconn.SaveChanges();
+                    HttpResponseMessage response = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
+                    return response;
+                }
+        
+                [HttpPost]
+                [Route("api/Add_New_Manager ")]
+
+                public HttpResponseMessage Add_New_Manager(ManagerModel obj)
+                {
+                    if (obj.ManagerId == null)
+                    {
+                        dbconn.Database.ExecuteSqlInterpolated($"Add_New_Manager {obj.RoleId},{obj.ManagerFname},{obj.ManagerLname},{obj.ManagerSal},{obj.ManagerDepartment},{obj.ManagerContact},{obj.ManagerDob},{obj.ManagerGender},{obj.ManagerBank},{obj.ManagerAccountNo},{obj.ManagerEmail},{obj.ManagerPassword},{obj.ManagerImage}");
+                    }
+
+                    else
+                    {
+                        dbconn.Entry(obj).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                        dbconn.SaveChanges();
+                    }
+
+                    HttpResponseMessage response = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
+                    return response;
+
+                }
+        
+                [HttpPost]
+                [Route("api/Approve_Claim_Employee_Proc")]
+
+                public HttpResponseMessage Approve_Claim_Employee_Proc(int Claim_Id)
+                {
+                    dbconn.Database.ExecuteSqlInterpolated($"Approve_Claim_Employee_Proc {Claim_Id}");
+                    dbconn.SaveChanges();
+                    HttpResponseMessage response = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
+                    return response;
+                }
+        
+                [HttpPost]
+                [Route("api/Rejected_Claim_Employee_Proc")]
+
+                public HttpResponseMessage Rejected_Claim_Employee_Proc(int Claim_Id, string Reason)
+                {
+                    dbconn.Database.ExecuteSqlInterpolated($"Rejected_Claim_Employee {Claim_Id},{Reason}");
+                    dbconn.SaveChanges();
+                    HttpResponseMessage response = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
+                    return response;
+                }
+        
+                [HttpPost]
+                [Route("api/Send_Back_Claim_Employee_Proc")]
+
+                public HttpResponseMessage Send_Back_Claim_Employee_Proc(int Claim_Id, string Reason)
+                {
+                    dbconn.Database.ExecuteSqlInterpolated($"Send_Back_Claim_Employee {Claim_Id},{Reason}");
+                    dbconn.SaveChanges();
+                    HttpResponseMessage response = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
+                    return response;
+                }
+        
+                [HttpPost]
+                [Route("api/Employee_Claim_Status_History")]
+
+                public List<Employee_Claim_Status_History_Particular_Model> Employee_Claim_Status_History(string ManagerId)
+                {
+
+                    var res = dbconn.EmployeeClaimStatusHistories.Where(m => m.ManagerId == ManagerId).ToList();
+                    List<Employee_Claim_Status_History_Particular_Model> obj = new List<Employee_Claim_Status_History_Particular_Model>();
+                    foreach (var item in res)
+                    {
+                        obj.Add(new Employee_Claim_Status_History_Particular_Model()
+                        {
+                            HistoryId = item.HistoryId,
+                            ClaimsNoId = item.ClaimsNoId,
+                            ManagerId = item.ManagerId,
+                            EmployeeId = item.EmployeeId,
+                            Accountant = item.Accountant,
+                            Manager = item.Manager,
+                            Approved = item.Approved,
+                            Rejected = item.Rejected,
+                            SendBack = item.SendBack,
+                            Reason = item.Reason
+
+                        });
+                    }
+                    return obj;
+                }
+
+    }
+}

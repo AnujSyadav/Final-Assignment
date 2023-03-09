@@ -1,0 +1,125 @@
+using Final_Claim_Ass.Db;
+using Final_Claim_Ass.Model;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Vito_Claim_Managemnt_System.Models;
+
+namespace Final_Claim_Ass.Controllers
+{
+  
+    public class AccountantController : ControllerBase
+    {
+        
+        Claim_ManagementContext dbconn = new Claim_ManagementContext();
+
+
+        [HttpPost]
+        [Route("api/Accountant/Login")]
+
+        public string Login(LoginModel obj)
+
+        {
+
+            var res = dbconn.Accountants.Where(m => m.Accountant_Id == obj.Accountant_Id).FirstOrDefault();
+            if (res == null)
+            {
+                return "Accountant not Found";
+            }
+
+            else
+            {
+                if (res.Accountant_Id == obj.Accountant_Id && res.Accountant_Password == obj.Accountant_Password)
+                {
+                    return "Success";
+                }
+                else
+                {
+                    return "no pass";
+                }
+            }
+        }
+
+      
+
+        [HttpGet]
+        [Route("api/Accountant_Claims")]
+
+        public List<Accountant_Claims_Model> Accountant_Claims()
+        {
+            var res = dbconn.AccountantClaims.ToList();
+            List<Accountant_Claims_Model> obj = new List<Accountant_Claims_Model>();
+
+            foreach (var item in res)
+            {
+                obj.Add(new Accountant_Claims_Model()
+                {
+
+                    Claims_No_Id = item.ClaimsNoId,
+                    Manager_Id = item.ManagerId,
+                    Employee_Id = item.EmployeeId,
+                    Source_Location = item.SourceLocation,
+                    Destination_Location = item.DestinationLocation,
+                    Purpose = item.Purpose,
+                    Distance_Kms = item.DistanceKms,
+                    Rupees = item.Rupees,
+                    To_Date = item.ToDate,
+                    From_Date = item.FromDate,
+                    Travel_By = item.TravelBy,
+                    Status_Of_Claims = item.StatusOfClaims,
+                    Employee_Claims_Proof = item.EmployeeClaimsProof
+
+                });
+            }
+            return obj;
+        }
+        [HttpPost]
+        [Route("api/Appoval_By_Accountant_Proc")]
+        public HttpResponseMessage Appoval_By_Accountant_Proc(int Claims_No_Id, string EmployeeId)
+        {
+            var res = dbconn.Database.ExecuteSqlInterpolated($"Appoval_By_Accountant{Claims_No_Id},{EmployeeId}");
+            HttpResponseMessage response = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
+            return response;
+        }
+        [HttpPost]
+        [Route("api/Rejected_By_Accountant")]
+        public HttpResponseMessage Rejected_By_Accountant(int Claims_No_Id, string ManagerId, string EmployeeId, string Reason)
+        {
+            var res = dbconn.Database.ExecuteSqlInterpolated($"Rejected_By_Accountant{Claims_No_Id},{EmployeeId},{ManagerId},{Reason}");
+
+            HttpResponseMessage response = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
+            return response;
+        }
+        [HttpPost]
+        [Route("api/Send_Back_By_Accountant")]
+        public HttpResponseMessage Send_Back_By_Accountant(int Claims_No_Id, string ManagerId, string EmployeeId, string Reason)
+        {
+            var res = dbconn.Database.ExecuteSqlInterpolated($"Send_Back_By_Accountant{Claims_No_Id},{ManagerId},{EmployeeId},{Reason}");
+            HttpResponseMessage response = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
+            return response;
+        }
+        [HttpGet]
+        [Route("api/Final_Billing_Table")]
+        public List<Final_Billing_Model> Final_Billing_Table()
+        {
+            var res = dbconn.FinalBillingTables.ToList();
+            List<Final_Billing_Model> obj = new List<Final_Billing_Model>();
+            foreach (var item in res)
+            {
+                obj.Add(new Final_Billing_Model()
+                {
+                    BillingId = item.BillingId,
+                    ClaimsNoId = item.ClaimsNoId,
+                    ManagerId = item.ManagerId,
+                    EmployeeId = item.EmployeeId,
+                    Rupees = item.Rupees,
+                    BankName = item.BankName,
+                    BankAccountNo = item.BankAccountNo
+                });
+            }
+            return obj;
+
+        }
+    }
+}
+

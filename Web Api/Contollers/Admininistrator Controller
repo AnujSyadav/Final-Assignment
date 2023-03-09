@@ -1,0 +1,136 @@
+using Final_Claim_Ass.Db;
+using Final_Claim_Ass.Model;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Vito_Claim_Managemnt_System.Models;
+
+namespace Final_Claim_Ass.Controllers
+{
+
+    public class AdministratorController : ControllerBase
+    {
+        
+
+        Claim_ManagementContext dbconn = new Claim_ManagementContext();
+
+        [HttpPost]
+        [Route("api/Admin/Login")]
+
+        public string Login(LoginModel obj)
+
+        {
+
+            var res = dbconn.Administrators.Where(m => m.Administrator_Id == obj.Administrator_Id).FirstOrDefault();
+            if (res == null)
+            {
+                return "Administrators not Found";
+            }
+
+            else
+            {
+                if (res.Administrator_Id == obj.Administrator_Id && res.Administrator_Password == obj.Administrator_Password)
+                {
+                    return "Success";
+                }
+                else
+                {
+                    return "no pass";
+                }
+            }
+        }
+
+
+
+
+        [HttpGet]
+        [Route("api/Administrator_Info")]
+
+        public List<AdministratorModel> Administrator_Info()
+        {
+            var res = dbconn.Administrators.ToList();
+            List<AdministratorModel> obj = new List<AdministratorModel>();
+
+            foreach (var item in res)
+            {
+                obj.Add(new AdministratorModel()
+                {
+                    AIdentity = item.A_Identity,
+                    AdministratorId = item.Administrator_Id,
+                    RoleId = item.Role_Id,
+                    AdministratorName = item.Administrator_Name,
+                    AdministratorEmail = item.Administrator_Email,
+                    AdministratorPassword = item.Administrator_Password,
+                    AdministratorImage = item.Administrator_Image
+
+                });
+            }
+            return obj;
+        }
+
+
+        [HttpGet]
+        [Route("api/Accountant_Info")]
+
+        public List<AccountantModel> Accountant_Info()
+        {
+            var res = dbconn.Accountants.ToList();
+            List<AccountantModel> obj = new List<AccountantModel>();
+
+            foreach (var item in res)
+            {
+                obj.Add(new AccountantModel()
+                {
+                    AIdentity = item.A_Identity,
+                    AccountantId = item.Accountant_Id,
+                    RoleId = item.Role_Id,
+                    AccountantName = item.Accountant_Name,
+                    AccountantEmail = item.Accountant_Email,
+                    AccountantPassword = item.Accountant_Password,
+                    AccountantImage = item.Accountant_Image
+
+                });
+            }
+            return obj;
+        }
+        [HttpGet]
+        [Route("api/Employee_Info")]
+        public List<EmployeeModel> Employee_Info()
+        {
+            var res = dbconn.Employees.ToList();
+            List<EmployeeModel> obj = new List<EmployeeModel>();
+
+              foreach (var item in res)
+              {
+                  obj.Add(new EmployeeModel()
+                  {
+                      EIdentity = item.E_Identity,
+                      EmployeeId = item.Employee_Id,
+                      RoleId = item.Role_Id,
+                      EmployeeFname = item.Employee_Fname,
+                      EmployeeLname = item.Employee_Lname,
+                      EmployeeSal = item.Employee_Sal,
+                      EmployeeQualification = item.Employee_Qualification,
+                      EmployeeAddress = item.Employee_Address,
+                      EmployeeState = item.Employee_State,
+                      EmployeeCountry = item.Employee_Country,
+                      EmployeeZipcode = item.Employee_Zipcode,
+                      EmployeeContact = item.Employee_Contact,
+                      EmployeeDob = item.Employee_Dob,
+                      EmployeeGender = item.Employee_Gender,
+                      EmployeeBank = item.Employee_Bank,
+                      EmployeeAccountNo = item.Employee_AccountNo,
+                      EmployeeDepartment = item.Employee_Department,
+                      EmployeeEmail = item.Employee_Email,
+                      EmployeePassword = item.Employee_Password,
+                      EmployeeImage = item.Employee_Image
+
+
+                  });
+              }
+            return obj;
+
+        }
+
+
+    }
+}
